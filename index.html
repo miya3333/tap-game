@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAP Game</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+
+    <div class="ui-overlay">
+        <h1>TAP Game</h1>
+
+        <div class="dashboard">
+            <div class="stat-box">
+                <span class="label">SCORE</span>
+                <span class="value" id="score-board">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">BEST (<span id="best-time-lbl">10s</span>)</span>
+                <span class="value highlight" id="high-score-board">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">TIME</span>
+                <span class="value" id="timer-display">10</span>
+            </div>
+        </div>
+
+        <div class="controls-wrapper">
+            <select id="timeSelect">
+                <option value="10">10 Detik</option>
+                <option value="20">20 Detik</option>
+                <option value="30">30 Detik</option>
+                <option value="40">40 Detik</option>
+                <option value="50">50 Detik</option>
+                <option value="60">1 Menit</option>
+            </select>
+            <button id="startBtn">START GAME</button>
+        </div>
+
+        <div class="ingame-controls">
+            <button id="pauseBtn" disabled>PAUSE</button>
+            <button id="stopBtn" disabled>STOP / RESET</button>
+        </div>
+
+        <div class="mode-selector">
+            <label><input type="radio" name="gamemode" value="standard" checked id="modeStd"> Standard</label>
+            <label><input type="radio" name="gamemode" value="gravity" id="modeGrav"> Gravity</label>
+        </div>
+    </div>
+
+    <div class="scene">
+
+        <div class="tilt-wrapper">
+            <div class="board" id="board">
+                <div class="entity target" id="target" style="--x: 5; --y: 5;"></div>
+                <div class="entity player" id="player" style="--x: 0; --y: 0;"></div>
+            </div>
+            <div class="board-thickness"></div>
+        </div>
+
+        <div class="overlay-container">
+            <div class="overlay-screen" id="gameOverScreen">
+                <h2>TIME'S UP!</h2>
+                <p>Final Score: <span id="final-score">0</span></p>
+            </div>
+            <div class="overlay-screen" id="pausedScreen">
+                <h2>PAUSED</h2>
+                <p>Click Resume to Continue</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="gravity-controls" id="gravityControls">
+        <button class="g-btn" id="btnRotateLeft">↺ Kiri</button>
+        <button class="g-btn" id="btnRotateRight">Kanan ↻</button>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
