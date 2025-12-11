@@ -330,3 +330,71 @@ board.addEventListener('click', (e) => {
 });
 
 initGrid();
+
+// --- GYROSCOPE CONTROL (MOBILE) ---
+const btnGyro = document.getElementById('btnGyro');
+let gyroEnabled = false;
+let tiltLocked = false; // Biar gak spamming muter terus
+
+// 1. Fungsi Request Permission (Wajib buat iOS 13+)
+btnGyro.addEventListener('click', async () => {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // Khusus iOS 13+
+        try {
+            const response = await DeviceOrientationEvent.requestPermission();
+            if (response === 'granted') {
+                enableGyro();
+            } else {
+                alert("Izin Gyroscope ditolak.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error requesting gyro permission");
+        }
+    } else {
+        // Android / iOS Lama (Langsung jalan)
+        enableGyro();
+    }
+});
+
+function enableGyro() {
+    gyroEnabled = true;
+    window.addEventListener('deviceorientation', handleOrientation);
+    
+    // Ubah tampilan tombol biar user tau udah aktif
+    btnGyro.innerText = "✅ Gyro Active";
+    btnGyro.style.background = "var(--accent-color)";
+    btnGyro.style.color = "#000";
+    btnGyro.disabled = true;
+}
+
+// 2. Logic Baca Sensor Miring
+function handleOrientation(event) {
+    // Cuma jalan kalau Mode Gravity dan Game lagi Play
+    if (state.mode !== 'gravity' || !state.isPlaying || state.isPaused) return;
+
+    // Gamma adalah kemiringan Kiri/Kanan (-90 sampai 90)
+    const tilt = event.gamma; 
+
+    // Threshold (Batas kemiringan) -> 30 derajat
+    const tiltThreshold = 30;
+    const resetThreshold = 15; // Harus balik ke posisi hampir datar buat reset
+
+    // LOGIKA TILT
+    if (!tiltLocked) {
+        if (tilt > tiltThreshold) {
+            // Miring Kanan -> Putar Kanan
+            rotateBoardAction(90);
+            tiltLocked = true; // Kunci biar gak muter lagi
+        } else if (tilt < -tiltThreshold) {
+            // Miring Kiri -> Putar Kiri
+            rotateBoardAction(-90);
+            tiltLocked = true; // Kunci
+        }
+    } else {
+        // Kalau lagi dikunci, cek apakah HP udah balik datar?
+        if (tilt > -resetThreshold && tilt < resetThreshold) {
+            tiltLocked = false; // Buka kunci, siap miring lagi
+        }
+    }
+}
