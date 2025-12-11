@@ -331,93 +331,93 @@ board.addEventListener('click', (e) => {
 
 initGrid();
 
-// --- GYROSCOPE CONTROL (DEBUG VERSION) ---
-const btnGyro = document.getElementById('btnGyro');
-let gyroEnabled = false;
-let tiltLocked = false;
+// // --- GYROSCOPE CONTROL (DEBUG VERSION) ---
+// const btnGyro = document.getElementById('btnGyro');
+// let gyroEnabled = false;
+// let tiltLocked = false;
 
-// Tambahkan Elemen Debug di layar biar lu bisa liat angkanya jalan apa nggak
-const debugBox = document.createElement('div');
-debugBox.style.position = 'fixed';
-debugBox.style.top = '10px';
-debugBox.style.left = '10px';
-debugBox.style.color = '#00ff00';
-debugBox.style.fontSize = '12px';
-debugBox.style.zIndex = '9999';
-debugBox.style.background = 'rgba(0,0,0,0.8)';
-debugBox.style.padding = '5px';
-debugBox.style.pointerEvents = 'none';
-debugBox.style.display = 'none'; // Sembunyi dulu
-document.body.appendChild(debugBox);
+// // Tambahkan Elemen Debug di layar biar lu bisa liat angkanya jalan apa nggak
+// const debugBox = document.createElement('div');
+// debugBox.style.position = 'fixed';
+// debugBox.style.top = '10px';
+// debugBox.style.left = '10px';
+// debugBox.style.color = '#00ff00';
+// debugBox.style.fontSize = '12px';
+// debugBox.style.zIndex = '9999';
+// debugBox.style.background = 'rgba(0,0,0,0.8)';
+// debugBox.style.padding = '5px';
+// debugBox.style.pointerEvents = 'none';
+// debugBox.style.display = 'none'; // Sembunyi dulu
+// document.body.appendChild(debugBox);
 
-btnGyro.addEventListener('click', async () => {
-    // Tampilkan box debug
-    debugBox.style.display = 'block';
-    debugBox.innerText = "Requesting Sensor...";
+// btnGyro.addEventListener('click', async () => {
+//     // Tampilkan box debug
+//     debugBox.style.display = 'block';
+//     debugBox.innerText = "Requesting Sensor...";
 
-    // 1. Cek Permission (Khusus iOS 13+)
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        try {
-            const response = await DeviceOrientationEvent.requestPermission();
-            if (response === 'granted') {
-                activateGyro();
-            } else {
-                alert("Izin Gyroscope ditolak iOS.");
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Error iOS Permission");
-        }
-    } else {
-        // 2. Android / Non-iOS (Langsung gas)
-        activateGyro();
-    }
-});
+//     // 1. Cek Permission (Khusus iOS 13+)
+//     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+//         try {
+//             const response = await DeviceOrientationEvent.requestPermission();
+//             if (response === 'granted') {
+//                 activateGyro();
+//             } else {
+//                 alert("Izin Gyroscope ditolak iOS.");
+//             }
+//         } catch (e) {
+//             console.error(e);
+//             alert("Error iOS Permission");
+//         }
+//     } else {
+//         // 2. Android / Non-iOS (Langsung gas)
+//         activateGyro();
+//     }
+// });
 
-function activateGyro() {
-    gyroEnabled = true;
+// function activateGyro() {
+//     gyroEnabled = true;
 
-    // UI Update
-    btnGyro.innerText = "✅ On";
-    btnGyro.style.background = "var(--accent-color)";
-    btnGyro.style.color = "#000";
+//     // UI Update
+//     btnGyro.innerText = "✅ On";
+//     btnGyro.style.background = "var(--accent-color)";
+//     btnGyro.style.color = "#000";
 
-    // Tambahkan Listener
-    window.addEventListener('deviceorientation', handleOrientation);
-}
+//     // Tambahkan Listener
+//     window.addEventListener('deviceorientation', handleOrientation);
+// }
 
-function handleOrientation(event) {
-    // DEBUG: Tampilkan angka mentah di layar
-    // Gamma: Miring Kiri/Kanan (-90 s/d 90)
-    // Beta: Miring Depan/Belakang
-    const g = Math.round(event.gamma);
-    const b = Math.round(event.beta);
-    debugBox.innerText = `Gamma: ${g} | Beta: ${b} | Mode: ${state.mode}`;
+// function handleOrientation(event) {
+//     // DEBUG: Tampilkan angka mentah di layar
+//     // Gamma: Miring Kiri/Kanan (-90 s/d 90)
+//     // Beta: Miring Depan/Belakang
+//     const g = Math.round(event.gamma);
+//     const b = Math.round(event.beta);
+//     debugBox.innerText = `Gamma: ${g} | Beta: ${b} | Mode: ${state.mode}`;
 
-    // Validasi Mode
-    if (state.mode !== 'gravity' || !state.isPlaying || state.isPaused) return;
+//     // Validasi Mode
+//     if (state.mode !== 'gravity' || !state.isPlaying || state.isPaused) return;
 
-    const tiltThreshold = 20; // Lebih sensitif dikit (tadi 30)
-    const resetThreshold = 10;
+//     const tiltThreshold = 20; // Lebih sensitif dikit (tadi 30)
+//     const resetThreshold = 10;
 
-    // Deteksi Gamma (Pastikan HP posisi Portrait/Berdiri)
-    if (!tiltLocked) {
-        if (g > tiltThreshold) {
-            // Miring Kanan
-            debugBox.style.color = 'yellow'; // Visual feedback
-            rotateBoardAction(90);
-            tiltLocked = true;
-        } else if (g < -tiltThreshold) {
-            // Miring Kiri
-            debugBox.style.color = 'yellow';
-            rotateBoardAction(-90);
-            tiltLocked = true;
-        }
-    } else {
-        // Reset Logic
-        if (g > -resetThreshold && g < resetThreshold) {
-            tiltLocked = false;
-            debugBox.style.color = '#00ff00'; // Balik hijau
-        }
-    }
-}
+//     // Deteksi Gamma (Pastikan HP posisi Portrait/Berdiri)
+//     if (!tiltLocked) {
+//         if (g > tiltThreshold) {
+//             // Miring Kanan
+//             debugBox.style.color = 'yellow'; // Visual feedback
+//             rotateBoardAction(90);
+//             tiltLocked = true;
+//         } else if (g < -tiltThreshold) {
+//             // Miring Kiri
+//             debugBox.style.color = 'yellow';
+//             rotateBoardAction(-90);
+//             tiltLocked = true;
+//         }
+//     } else {
+//         // Reset Logic
+//         if (g > -resetThreshold && g < resetThreshold) {
+//             tiltLocked = false;
+//             debugBox.style.color = '#00ff00'; // Balik hijau
+//         }
+//     }
+// }
