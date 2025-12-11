@@ -3,7 +3,7 @@
 ## Live Demo
 
 Play the game directly in your browser:
-**[Click Here to Play](https://username.github.io/nama-repo/)**
+**[Click Here to Play](https://miya3333.github.io/tap-game/)**
 
 ---
 
