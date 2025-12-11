@@ -331,70 +331,93 @@ board.addEventListener('click', (e) => {
 
 initGrid();
 
-// --- GYROSCOPE CONTROL (MOBILE) ---
+// --- GYROSCOPE CONTROL (DEBUG VERSION) ---
 const btnGyro = document.getElementById('btnGyro');
 let gyroEnabled = false;
-let tiltLocked = false; // Biar gak spamming muter terus
+let tiltLocked = false;
 
-// 1. Fungsi Request Permission (Wajib buat iOS 13+)
+// Tambahkan Elemen Debug di layar biar lu bisa liat angkanya jalan apa nggak
+const debugBox = document.createElement('div');
+debugBox.style.position = 'fixed';
+debugBox.style.top = '10px';
+debugBox.style.left = '10px';
+debugBox.style.color = '#00ff00';
+debugBox.style.fontSize = '12px';
+debugBox.style.zIndex = '9999';
+debugBox.style.background = 'rgba(0,0,0,0.8)';
+debugBox.style.padding = '5px';
+debugBox.style.pointerEvents = 'none';
+debugBox.style.display = 'none'; // Sembunyi dulu
+document.body.appendChild(debugBox);
+
 btnGyro.addEventListener('click', async () => {
+    // Tampilkan box debug
+    debugBox.style.display = 'block';
+    debugBox.innerText = "Requesting Sensor...";
+
+    // 1. Cek Permission (Khusus iOS 13+)
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        // Khusus iOS 13+
         try {
             const response = await DeviceOrientationEvent.requestPermission();
             if (response === 'granted') {
-                enableGyro();
+                activateGyro();
             } else {
-                alert("Izin Gyroscope ditolak.");
+                alert("Izin Gyroscope ditolak iOS.");
             }
         } catch (e) {
             console.error(e);
-            alert("Error requesting gyro permission");
+            alert("Error iOS Permission");
         }
     } else {
-        // Android / iOS Lama (Langsung jalan)
-        enableGyro();
+        // 2. Android / Non-iOS (Langsung gas)
+        activateGyro();
     }
 });
 
-function enableGyro() {
+function activateGyro() {
     gyroEnabled = true;
-    window.addEventListener('deviceorientation', handleOrientation);
-    
-    // Ubah tampilan tombol biar user tau udah aktif
-    btnGyro.innerText = "✅ Gyro Active";
+
+    // UI Update
+    btnGyro.innerText = "✅ On";
     btnGyro.style.background = "var(--accent-color)";
     btnGyro.style.color = "#000";
-    btnGyro.disabled = true;
+
+    // Tambahkan Listener
+    window.addEventListener('deviceorientation', handleOrientation);
 }
 
-// 2. Logic Baca Sensor Miring
 function handleOrientation(event) {
-    // Cuma jalan kalau Mode Gravity dan Game lagi Play
+    // DEBUG: Tampilkan angka mentah di layar
+    // Gamma: Miring Kiri/Kanan (-90 s/d 90)
+    // Beta: Miring Depan/Belakang
+    const g = Math.round(event.gamma);
+    const b = Math.round(event.beta);
+    debugBox.innerText = `Gamma: ${g} | Beta: ${b} | Mode: ${state.mode}`;
+
+    // Validasi Mode
     if (state.mode !== 'gravity' || !state.isPlaying || state.isPaused) return;
 
-    // Gamma adalah kemiringan Kiri/Kanan (-90 sampai 90)
-    const tilt = event.gamma; 
+    const tiltThreshold = 20; // Lebih sensitif dikit (tadi 30)
+    const resetThreshold = 10;
 
-    // Threshold (Batas kemiringan) -> 30 derajat
-    const tiltThreshold = 30;
-    const resetThreshold = 15; // Harus balik ke posisi hampir datar buat reset
-
-    // LOGIKA TILT
+    // Deteksi Gamma (Pastikan HP posisi Portrait/Berdiri)
     if (!tiltLocked) {
-        if (tilt > tiltThreshold) {
-            // Miring Kanan -> Putar Kanan
+        if (g > tiltThreshold) {
+            // Miring Kanan
+            debugBox.style.color = 'yellow'; // Visual feedback
             rotateBoardAction(90);
-            tiltLocked = true; // Kunci biar gak muter lagi
-        } else if (tilt < -tiltThreshold) {
-            // Miring Kiri -> Putar Kiri
+            tiltLocked = true;
+        } else if (g < -tiltThreshold) {
+            // Miring Kiri
+            debugBox.style.color = 'yellow';
             rotateBoardAction(-90);
-            tiltLocked = true; // Kunci
+            tiltLocked = true;
         }
     } else {
-        // Kalau lagi dikunci, cek apakah HP udah balik datar?
-        if (tilt > -resetThreshold && tilt < resetThreshold) {
-            tiltLocked = false; // Buka kunci, siap miring lagi
+        // Reset Logic
+        if (g > -resetThreshold && g < resetThreshold) {
+            tiltLocked = false;
+            debugBox.style.color = '#00ff00'; // Balik hijau
         }
     }
 }
