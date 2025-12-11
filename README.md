@@ -1,5 +1,12 @@
 # TAP Game - 3D Isometric Grid Puzzle
 
+## Live Demo
+
+Play the game directly in your browser:
+**[Click Here to Play](https://username.github.io/nama-repo/)**
+
+---
+
 A responsive web-based puzzle game built entirely with Vanilla JavaScript, HTML5, and CSS3. This project demonstrates advanced DOM manipulation, CSS 3D transforms, and complex game logic implementation without the use of external game engines or libraries.
 
 ## Project Overview
